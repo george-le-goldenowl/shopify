@@ -69,9 +69,9 @@ if (!class_exists('HTTP_CLIENT')) {
 
 	    protected static function get_pace_prefix($config)
 	    {
-	    	if (isset($config->enable_playground) && 'on' == $config->enable_playground) {
+	    	if (isset($config['enable_playground']) && 'on' == $config['enable_playground']) {
 	    		return 'https://api-playground.pacenow.co';
-	    	} elseif (isset($config->enable) && 'on' == $config->enable) {
+	    	} elseif (isset($config['enable']) && 'on' == $config['enable']) {
 	    		return 'https://api.pacenow.co';
 	    	} else {
 	    		return '';
@@ -80,19 +80,19 @@ if (!class_exists('HTTP_CLIENT')) {
 
 	    protected static function get_pace_auth($config)
 	    {
-	    	if (isset($config->enable_playground) && 'on' == $config->enable_playground) {
+	    	if (isset($config['enable_playground']) && 'on' == $config['enable_playground']) {
 	    		if (
-	    			(isset($config->playground_client_id) || !empty($config->playground_client_id)) &&
-	    			(isset($config->playground_client_secret) || !empty($config->playground_client_secret))
+	    			(isset($config['playground_client_id']) || !empty($config['playground_client_id'])) &&
+	    			(isset($config['playground_client_secret']) || !empty($config['playground_client_secret']))
 	    		) {
-	    			return base64_encode($config->playground_client_id . ':' . $config->playground_client_secret);
+	    			return base64_encode($config['playground_client_id'] . ':' . $config['playground_client_secret']);
 	    		}
-	    	} elseif (isset($config->enable) && 'on' == $config->enable) {
+	    	} elseif (isset($config['enable']) && 'on' == $config['enable']) {
 	    		if (
-	    			(isset($config->pace_client_id) || !empty($config->pace_client_id)) &&
-	    			(isset($config->pace_client_secret) || !empty($config->pace_client_secret))
+	    			(isset($config['pace_client_id']) || !empty($config['pace_client_id'])) &&
+	    			(isset($config['pace_client_secret']) || !empty($config['pace_client_secret']))
 	    		) {
-	    			return base64_encode($config->pace_client_id . ':' . $config->pace_client_secret); 
+	    			return base64_encode($config['pace_client_id'] . ':' . $config['pace_client_secret']); 
 	    		}
 	    	} else {
 	    		return '';

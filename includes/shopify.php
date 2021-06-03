@@ -48,13 +48,14 @@ if (!class_exists('SHOPIFY')) {
 
         public function __construct()
         {
-        	$this->shop =  untrailingslashit( esc_attr( $_GET['shop'] ) );
+        	$this->shop = untrailingslashit( esc_attr( $_GET['shop'] ) );
         }
 
 	    public function initialize($store)
 	    {
 	    	$this->get_token($store);
-	    	$this->registerWebhooks($store);
+	    	$this->get_store_config($store);
+	    	$this->register_webhooks($store);
 	    }
 
 	    public static function webhooks_action(WP_REST_Request $request)
@@ -73,13 +74,60 @@ if (!class_exists('SHOPIFY')) {
 		    		case 'orders/create':
 		    			PACE::create_transaction($store, $params);
 		    			break;
-		    		
+		    		case 'app/uninstalled':
+		    			self::uninstalled($store, $params);
+		    			break;
 		    		default:
 		    			// code...
 		    			break;
 		    	}
 	    	} catch (Exception $e) {
 	    		error_log($e->getMessage());
+	    	}
+	    }
+
+	    public static function uninstalled($store, $params)
+	    {	
+	    	$code = wp_hash( $params['shop'] );
+	    	SHOPIFY_DATA::delete_shopify($params['shop']);
+	    	wp_delete_file( PACE_SHOPIFY_PLUGIN_PATH . '/locked/config-' . $code . '.json' );
+	    }
+
+	    public static function cancelled_order($store, $params)
+	    {
+	    	try {
+	    		$token = get_post_meta( $store->ID, 'access_token', true );
+	    		$endpoint = str_replace('{shop}', $params['shop'], SHOPIFY_API_ENDPOINT . '/orders/');
+	    		$endpoint = $endpoint . $params['referenceID'] . '/cancel.json';
+	    		$response = HTTP_CLIENT::shopify($endpoint, $token, 'POST');
+
+	    		if (200 !== $response['code']) {
+	    			throw new Exception($response['message']);
+	    		}
+	    	} catch (Exception $e) {
+	    		error_log($e->getMessage());
+	    	}
+	    }
+
+	    public static function completed_order($store, $params)
+	    {
+	    	try {
+	    		$token = get_post_meta( $store->ID, 'access_token', true );
+	    		$options = array(
+	    			'transaction' => array(
+	    				'kind' => 'capture',
+	    				'authorization' => 'authorization-key'
+	    			)
+	    		);
+	    		$endpoint = str_replace('{shop}', $params['shop'], SHOPIFY_API_ENDPOINT . '/orders/');
+	    		$endpoint = $endpoint . $params['referenceID'] . '/transactions.json';
+	    		$response = HTTP_CLIENT::shopify($endpoint, $token, 'POST', $options);
+
+	    		if (200 !== $response['code']) {
+	    			throw new Exception($response['message']);
+	    		}
+	    	} catch (Exception $e) {
+	    		error_log($e->getMessage());	
 	    	}
 	    }
 
@@ -118,7 +166,30 @@ if (!class_exists('SHOPIFY')) {
 	    	}
 	    }
 
-	    protected function registerWebhooks($store)
+	    protected function get_store_config($store)
+	    {
+	    	$config = shopify_get_config($this->shop);
+
+	    	try {
+	    		if (isset($config['store']) && 1 == $config['store']) {
+		    		return;
+		    	}
+
+		    	$endpoint = str_replace('{shop}', $this->shop, SHOPIFY_API_ENDPOINT . '/shop.json');
+		    	$response = HTTP_CLIENT::shopify($endpoint, $this->token);
+
+		    	if (200 < $response['code']) {
+		    		throw new Exception($response['message']);
+		    	}
+
+		    	update_post_meta( $store->ID, 'store', json_encode($response['resultsJson']->shop) );
+		    	shopify_put_config($this->shop, 'store', 1);
+	    	} catch (Exception $e) {
+	    		error_log($e->getMessage());
+	    	}
+	    }
+
+	    protected function register_webhooks($store)
 	    {
 	    	$config = shopify_get_config($this->shop);
 	    	$webhooks = explode(',', self::SHOPIFY_WEBHOOKS);

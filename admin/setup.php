@@ -102,6 +102,11 @@ if (!class_exists('SHOPIFY_ADMIN_SETUP')) {
 	    		'methods' => 'POST',
 	    		'callback' => array('SHOPIFY', 'webhooks_action')
 	    	) );
+
+	    	register_rest_route( 'pace/v1', '/webhook-callback/(?P<shop>[a-zA-Z0-9\.\-]+)', array(
+	    		'methods' => 'POST',
+	    		'callback' => array('PACE', 'webhooks_callback')
+	    	) );
 	    }
 
 	    public function add_query_params($queries)

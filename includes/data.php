@@ -65,6 +65,14 @@ if (!class_exists('SHOPIFY_DATA')) {
 	    	
 	    	return $merge;
 	    }
+
+	    public static function delete_shopify($shop)
+	    {
+	    	global $wpdb;
+	    	$wpdb->query(
+	    		"DELETE p,pm FROM {$wpdb->prefix}posts p INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id WHERE p.post_title = '{$shop}'"
+	    	);
+	    }
 	}
 
 	SHOPIFY_DATA::get_instance();
