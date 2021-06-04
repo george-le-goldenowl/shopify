@@ -34,18 +34,6 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="colFormLabelSm" class="col-sm-3 col-form-label col-form-label-sm">Pay with Pace mode</label>
-                                <div class="col-sm-5">
-                                    <div class="ginput_container ginput_container_select">
-                                        <select name="payment_mode">
-                                            <?php $paymentMode = array('redirect', 'popup');foreach ($paymentMode as $value) {?>
-                                                <option value="<?=$value;?>" <?php echo isset($shopSetting['payment_mode']) && $shopSetting['payment_mode'] == $value ? 'selected' : ''; ?>><?=ucfirst($value);?></option>
-                                            <?php }?>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
                                 <label for="apps.title" class="col-sm-3 col-form-label col-form-label-sm">Title</label>
                                 <div class="col-sm-5">
                                     <input class="pace-form-control" name="title" type="text" id="apps.title" value="<?php echo $shopSetting['title'] ?? ''; ?>">
