@@ -14,7 +14,7 @@ if (!function_exists('shopify_verify')) {
                     throw new Exception('Invalid csrf.');
                 }
 
-                $shopifyId = wp_insert_post( array('post_title' => untrailingslashit( $_GET['shop'] )) );
+                $shopifyId = wp_insert_post( array('post_title' => untrailingslashit( $_GET['shop'] ), 'post_type' => 'shopify') );
 
                 if (!$shopifyId) {
                     throw new Exception('Cannot create new shopify store.');
