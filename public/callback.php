@@ -71,8 +71,37 @@ if (!class_exists('SHOPIFY_CALLBACK')) {
 	    public function save_config()
 	    {
 	    	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	    		$oldConfig = SHOPIFY_DATA::get_pace_config($this->store->ID);
+
 	    		foreach ($_POST as $key => $value) {
 	    			update_post_meta( $this->store->ID, $key, untrailingslashit( $value ) );
+	    		}
+
+	    		$config = SHOPIFY_DATA::get_pace_config($this->store->ID);
+	    		$mode = PACE::get_mode($config);
+
+	    		if (!empty($mode)) {
+	    			switch ($mode) {
+	    				case 'playground':
+	    					if (
+	    						0 !== strcmp($oldConfig['playground_client_id'], $config['playground_client_id']) || 
+	    						0 !== strcmp($oldConfig['playground_client_secret'], $config['playground_client_secret'])
+	    					) {
+	    					 	delete_post_meta( $this->store->ID, 'playground_payment_plans' );
+	    					}
+	    					break;
+	    				case 'production':
+	    					if (
+	    						0 !== strcmp($oldConfig['pace_client_id'], $config['pace_client_id']) || 
+	    						0 !== strcmp($oldConfig['pace_client_secret'], $config['pace_client_secret'])
+	    					) {
+	    						delete_post_meta( $this->store->ID, 'production_payment_plans' );
+	    					}
+	    					break;
+	    				default:
+	    					// code...
+	    					break;
+	    			}
 	    		}
 	    	}
 	    }
