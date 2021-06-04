@@ -18,11 +18,11 @@
                             	</div>
                                 <div class="pace-form-group">
                                     <label class="pace-form-label" for="client-id">Client Id</label>
-                                    <input class="pace-form-control" name="client_id" type="text" id="client-id" placeholder="Apps Id"/>
+                                    <input class="pace-form-control" name="client_id" type="text" id="client-id" placeholder="Apps Id" required/>
                                 </div>
                                 <div class="pace-form-group">
                                     <label class="pace-form-label" for="client-secret">Client Secret</label>
-                                    <input class="pace-form-control" name="client_secret" type="text" id="client-secret" placeholder="Apps secret"/>
+                                    <input class="pace-form-control" name="client_secret" type="text" id="client-secret" placeholder="Apps secret" required/>
                                 </div>
                                 <div class="pace-form-group">
                                     <button class="ec-btn ec-btn-primary">Verification</button>

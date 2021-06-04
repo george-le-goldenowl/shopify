@@ -71,29 +71,39 @@ if (!class_exists('SHOPIFY_CALLBACK')) {
 	    public function save_config()
 	    {
 	    	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	    		$oldConfig = SHOPIFY_DATA::get_pace_config($this->store->ID);
+	    		$oldConfig = SHOPIFY_DATA::get_pace_config($this->store);
 
 	    		foreach ($_POST as $key => $value) {
 	    			update_post_meta( $this->store->ID, $key, untrailingslashit( $value ) );
 	    		}
 
-	    		$config = SHOPIFY_DATA::get_pace_config($this->store->ID);
+	    		$config = SHOPIFY_DATA::get_pace_config($this->store);
 	    		$mode = PACE::get_mode($config);
 
 	    		if (!empty($mode)) {
 	    			switch ($mode) {
 	    				case 'playground':
+	    					$old_playground_id = isset($oldConfig['playground_client_id']) ? $oldConfig['playground_client_id'] : '';
+			    			$old_playground_secret = isset($oldConfig['playground_client_secret']) ? $oldConfig['playground_client_secret'] : '';
+			    			$playground_id = isset($config['playground_client_id']) ? $config['playground_client_id'] : '';
+			    			$playground_secret = isset($config['playground_client_secret']) ? $config['playground_client_secret'] : '';
+
 	    					if (
-	    						0 !== strcmp($oldConfig['playground_client_id'], $config['playground_client_id']) || 
-	    						0 !== strcmp($oldConfig['playground_client_secret'], $config['playground_client_secret'])
+	    						0 !== strcmp($old_playground_id, $playground_id) || 
+	    						0 !== strcmp($old_playground_secret, $playground_secret)
 	    					) {
 	    					 	delete_post_meta( $this->store->ID, 'playground_payment_plans' );
 	    					}
 	    					break;
 	    				case 'production':
+	    					$old_client_id = isset($oldConfig['pace_client_id']) ? $oldConfig['pace_client_id'] : '';
+	    					$old_client_secret = isset($oldConfig['pace_client_secret']) ? $oldConfig['pace_client_secret'] : '';
+	    					$client_id = isset($config['pace_client_id']) ? $config['pace_client_id'] : '';
+	    					$client_secret = isset($config['pace_client_secret']) ? $config['pace_client_secret'] : '';
+	    					
 	    					if (
-	    						0 !== strcmp($oldConfig['pace_client_id'], $config['pace_client_id']) || 
-	    						0 !== strcmp($oldConfig['pace_client_secret'], $config['pace_client_secret'])
+	    						0 !== strcmp($old_client_id, $client_id) || 
+	    						0 !== strcmp($old_client_secret, $client_secret)
 	    					) {
 	    						delete_post_meta( $this->store->ID, 'production_payment_plans' );
 	    					}
